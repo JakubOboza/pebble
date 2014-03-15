@@ -18,6 +18,10 @@ OptionParser.new do |opts|
     options[:bucket] = bucket_name
   end
 
+  opts.on("-k", "--key <name>", String, "key in bucket you wanna lookup") do |key_name|
+    options[:key] = key_name
+  end
+
   opts.on("-p","--port <number>", String, "protocol buffer port") do |port|
     options[:port] = port
   end
@@ -28,12 +32,15 @@ params = {:protocol => "pbc"}
 params.merge!(:pb_port => options[:port]) if options[:port]
 client = Riak::Client.new(params)
 
-puts options.inspect
-
 if options[:buckets]
   client.buckets.each do |bucket|
     puts bucket.name
   end
+end
+
+if options[:bucket] && options[:key]
+  puts client.bucket(options[:bucket])[options[:key]].raw_data
+  exit
 end
 
 if options[:bucket]
